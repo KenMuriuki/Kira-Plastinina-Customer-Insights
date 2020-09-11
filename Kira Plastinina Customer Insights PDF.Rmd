@@ -1,0 +1,319 @@
+---
+title: "Kira Plastinina Customer Insights Project"
+author: "Kennedy Muriuki"
+date: "11/09/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Defining the question
+
+In this weeks problem, I will be working as a data scientist for a client, Kira Plastinina. Kira Plastinina is a Russian brand that is sold throughout retail stores in Russia, Ukraine, Kazakhstan, Belarus, China, Philippines, and Armenia. It's marketing team would like to better understand their customers behaviors and therefore requested me to draw insights on the characteristics of various customer groups.
+
+
+## Defining the metric of success
+
+The metric of success is to obtain several distinct clusters of the Kira Plastina's customers and their characteristics.
+
+## Data Sourcing
+
+The dataset was sourced from the company's database of existing customers. The dataset was availed by the brand's sales and marketing team.
+
+## The Experimental Design
+
+For me to be able to obtain the required results, the following steps will be undertaken
+
+1. Problem definition
+2. Data sourcing
+3. Checking the data
+4. Performing data cleaning
+5. Perform Exploratory data analysis
+6. Implementing the solution
+7. Challenging the solution
+8. Follow up questions
+
+
+## Checking the data
+
+### Loading the dataset
+
+```{r}
+# the dataset has been downloaded to a local repository and will be loaded as a csv file
+data <- read.csv(file.choose())
+head(data)
+```
+
+```{r}
+# previewing the bottom of the dataset
+tail(data)
+```
+
+
+```{r}
+# displaying the structure of the dataset
+str(data)
+```
+
+
+```{r}
+# displaying the dimension of the dataset
+dim(data)
+```
+the data contains 12,330 entries and 18 columns
+
+```{r}
+# checking the names of the columns and their datatypes in the dataset
+
+columns = colnames(data)
+for (column in seq(length(colnames(data)))){
+  print(columns[column])
+  print(class(data[, column]))
+  cat('\n')
+}
+```
+
+
+### Checking for missing values
+
+```{r}
+# checking if the dataset contains any missing values
+any(is.na(data))
+```
+
+```{r}
+# checking the columns with missing data
+colSums(is.na(data))
+```
+
+
+```{r}
+# since the missing data is not a lot I will skip the missing data
+df <- na.omit(data)
+
+# cheking the dimension of the new dataset
+dim(df)
+```
+
+
+### checking for duplicates
+
+```{r}
+# checking for duplicated data in the dataset
+any(duplicated(df))
+```
+
+
+```{r}
+# identifying the duplicated data
+dup <- df[duplicated(df),]
+dup
+```
+
+data showed above as duplicated did not look like duplicated data. They had a lot of similar entries in some columns but did not have entirely similar column entries. Therefore I will not remove the 177 rows as this might cause inconsistencies within the data set and affect final results
+
+### checking for outliers
+
+```{r }
+# obtaining the numerical columns
+numerical = df[,c(1:10)]
+head(numerical)
+```
+
+```{r }
+# generating boxplots for the numerical columns
+par(mfrow=c(2,2), mar=c(5,4,2,2))
+
+for (i in names(numerical)){
+  x <- (numerical)[,i]
+  boxplot(x, xlab= i, col="red")
+  boxplot.stats(x)$out
+}
+
+```
+
+
+```{r}
+# dealing with the outliers
+```
+
+
+```{r}
+# checking the summary of the dataset
+summary(df)
+```
+
+
+## Univariate Exploratory Data Analysis
+
+### Measures of central tendancies
+
+```{r }
+# obtaining the mean of the numerical columns
+
+for (i in names(numerical)){
+  x <- numerical[,i]
+  mean <- mean(x)
+  print(paste("The mean ", i , "is" ,  mean))
+  cat('\n')
+}
+```
+
+
+```{r }
+# obtaining the median of the numerical columns
+
+for (i in names(numerical)){
+  x <- numerical[,i]
+  mean <- median(x)
+  print(paste("The mean ", i , "is" ,  mean))
+  cat('\n')
+}
+```
+
+
+```{r }
+# displaying the mode of the numerical columns
+
+getmode <- function(a){
+  uniqv <- unique(a)
+  uniqv[which.max(tabulate(match(a,uniqv)))]
+}
+
+# looping through the columns to get the mode
+
+for (i in names(numerical)){
+  x <- numerical[,i]
+  mode <- getmode(x)
+  print(paste("column", i , ":" ,  mode))
+  cat('\n')
+}
+```
+
+
+### Measures of dispersion
+
+```{r }
+# obtaining the five number summary of the numerical columns
+
+for (i in names(numerical)){
+  x <- numerical[,i]
+  quantile <- quantile(x)
+  print(paste(i))
+  cat('\n')
+  print(quantile)
+  cat('\n')
+}
+
+```
+
+
+```{r}
+# showing the variances and standard deviation of the munerical columns
+for (i in names(numerical)){
+  x <- numerical[,i]
+  Sdev <- sd(x)
+  var <- var(x)
+  print(paste(i))
+  cat('\n')
+  print(paste("Variance :", round(var, digits = 2), "Standard deviation :", round(Sdev, digits = 2)))
+  cat('\n')
+}
+
+
+```
+
+
+## Bivariate analysis
+
+## Multivariate analysis
+
+## Implimenting the solution
+
+### K-Means Clustering
+
+This method involves partitioning the data set into clusters or k groups.
+```{r}
+# Since clustering is unsupervised learning I will remove the class attribute which is revenue
+df_new <- df[,c(1:9)]
+df_class <- df[,c(10)]
+```
+
+```{r}
+# looking at the predictor data
+head(df_new)
+```
+
+```{r}
+# normalizing the dataset
+head(df)
+```
+
+
+```{r}
+# printing unique values for the categorical columns
+for (i in names(df[,c(11:18)])){
+  print(unique(df[i]))
+}
+```
+
+
+One hot encoding the categorical columns
+
+```{r}
+library(caret)
+dummy <- dummyVars("~.", data=df, fullRank=T)
+df_enc <- data.frame(predict(dummy, newdata=df))
+str(df_enc)
+```
+
+
+```{r}
+# scaling the numerical columns
+df_scale <- scale(df_enc[,1:10])
+head(df_scale)
+```
+
+
+```{r}
+# joining the two dataset 
+final <- cbind(df_scale, df_enc[,11:27])
+head(final)
+```
+
+```{r}
+# removing the class attribute
+final_att <- final[,c(1:26)]
+final_class <- final$RevenueTRUE
+head(final_att)
+```
+
+
+```{r}
+# applying the k-means clustering
+result <- kmeans(final_att, 3)
+result
+```
+
+```{r}
+# visualizing the clusters
+# installing the package
+# install.packages("factoextra")
+png("C:\\plot1.png", width = 480, height = 480, units = "px", bg = "white")
+library(factoextra)
+
+fviz_cluster(result, data = final_att)
+```
+
+
+
+```{r}
+# obtaining the optimal number of clusters
+fviz_nbclust(x = final_att, FUNcluster = kmeans, method = 'silhouette' )
+```
+
+### Hierachical clustering 
