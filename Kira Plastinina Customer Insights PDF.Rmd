@@ -226,11 +226,156 @@ for (i in names(numerical)){
 
 
 ```
+### Histograms
+
+
+```{r}
+# creating a function to generate histogram plots for the numerical columns
+library(ggplot2)
+dens_fun = function(X) {
+     ggplot(numerical, aes(x= X)) +
+      geom_histogram(color="blue", alpha=0.8)
+}
+
+# generating histogram for Administrative
+dens_fun(df$Administrative)
+```
+
+
+```{r}
+dens_fun(numerical$Administrative_Duration)
+```
+
+
+```{r}
+dens_fun(numerical$Informational)
+```
+
+
+```{r}
+dens_fun(numerical$Informational_Duration)
+```
+
+
+```{r}
+dens_fun(numerical$ProductRelated )
+```
+
+
+```{r}
+dens_fun(numerical$ProductRelated_Duration)
+```
+
+
+```{r}
+dens_fun(numerical$BounceRates)
+```
+
+
+```{r}
+dens_fun(numerical$ExitRates)
+```
+
+
+```{r}
+dens_fun(numerical$PageValues)
+```
+
+
+```{r}
+#dens_fun(numerical$SpecialDay)
+ggplot(numerical, aes(x= SpecialDay)) +
+  geom_histogram(binwidth= 0.15, color="blue")
+```
+
+
+### Bar graphs
+
+```{r}
+head(df)
+```
+
+```{r}
+# visualizing the column months
+
+ggplot(df, aes(Month)) + 
+  geom_bar(fill = "green")
+```
+
+```{r}
+# visualizing column OperatingSystems
+
+ggplot(df, aes(OperatingSystems)) + 
+  geom_bar(fill = "red")
+
+```
+
+
+```{r}
+# visualizing browser column
+ggplot(df, aes(Browser)) + 
+  geom_bar(stat="count", fill = "green")
+```
+
+
+```{r}
+# visualizing column OperatingSystems
+
+ggplot(df, aes(Region)) + 
+  geom_bar(fill = "blue")
+
+```
+
+```{r}
+# visualizing column OperatingSystems
+
+ggplot(df, aes(TrafficType)) + 
+  geom_bar(fill = "grey")
+```
+
+
+```{r}
+# plotting the graph of visitor type
+
+ggplot(df, aes(VisitorType)) + 
+  geom_bar(stat="count", fill = "green")
+```
+
+```{r}
+# visualizing the weekend column
+ggplot(df, aes(Weekend)) + 
+  geom_bar(stat="count", fill = "black")
+```
+
+
+```{r}
+# visualizing the revenue column
+ggplot(df, aes(Revenue)) + 
+  geom_bar(stat="count", fill = "orange")
+```
+
 
 
 ## Bivariate analysis
 
-## Multivariate analysis
+```{r}
+# performing a correlation plot for the numerical variables
+
+library(ggcorrplot)
+
+corr <- round(cor(numerical), 1)
+head(corr,4)
+
+ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
+```
+
+```{r}
+# perfoming pairplots for the numerical variables
+col <- df[,c(1:10)]
+pairs(col)
+```
+
+
 
 ## Implimenting the solution
 
@@ -295,9 +440,18 @@ head(final_att)
 
 ```{r}
 # applying the k-means clustering
-result <- kmeans(final_att, 3)
-result
+result <- kmeans(final_att, 2)
+result$size
+result$centers
+
 ```
+
+
+```{r}
+# showing the table of the clusters
+table(result$cluster, final_class)
+```
+
 
 ```{r}
 # visualizing the clusters
@@ -317,3 +471,23 @@ fviz_nbclust(x = final_att, FUNcluster = kmeans, method = 'silhouette' )
 ```
 
 ### Hierachical clustering 
+
+```{r}
+# computing the eucledian distance between observations
+
+d <- dist(final_att, method = "euclidean")
+```
+
+
+```{r}
+# performing hierachical clustering usig hclust
+result_hc <- hclust(d, method = "ward.D2")
+
+```
+
+
+```{r}
+# plotting the dendograms
+plot(result_hc, cev=0.6)
+```
+
